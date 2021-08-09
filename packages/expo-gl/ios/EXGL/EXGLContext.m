@@ -83,16 +83,17 @@
         return;
       }
 
-      self->_contextId = UEXGLContextCreate(jsRuntimePtr);
+      self->_contextId = UEXGLContextCreate();
       [self->_objectManager saveContext:self];
-
-      UEXGLContextSetFlushMethodObjc(self->_contextId, ^{
+      UEXGLContextSetDefaultFramebuffer(self->_contextId, [self defaultFramebuffer]);
+      UEXGLContextPrepare(jsRuntimePtr, self->_contextId, ^{
         [self flush];
       });
 
       if ([self.delegate respondsToSelector:@selector(glContextInitialized:)]) {
         [self.delegate glContextInitialized:self];
       }
+
       BLOCK_SAFE_RUN(callback, YES);
     }];
   } else {

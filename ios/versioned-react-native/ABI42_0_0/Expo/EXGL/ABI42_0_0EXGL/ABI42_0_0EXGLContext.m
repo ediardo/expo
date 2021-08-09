@@ -83,10 +83,10 @@
         return;
       }
 
-      self->_contextId = UEXGLContextCreate(jsRuntimePtr);
+      self->_contextId = UEXGLContextCreate();
       [self->_objectManager saveContext:self];
-
-      UEXGLContextSetFlushMethodObjc(self->_contextId, ^{
+      UEXGLContextSetDefaultFramebuffer(self->_contextId, [self defaultFramebuffer]);
+      UEXGLContextPrepare(jsRuntimePtr, self->_contextId, ^{
         [self flush];
       });
 
