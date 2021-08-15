@@ -470,68 +470,14 @@ The easiest way to configure the splash screen in bare React Native projects is 
 
 ### Manual Configuration
 
-1. [`SplashScreen.show()` method](#-splashscreenshowactivity-activity-splashscreenimageresizemode-mode-class-rootviewclass)
-2. [Update `MainActivity`](#-update-mainactivityjavakt)
-3. [Configure `res/drawable/splashscreen_image.png`](#-configure-resdrawablesplashscreen_imagepng)
-4. [Configure `res/values/colors.xml`](#-configure-resvaluescolorsxml)
-5. [Configure `res/drawable/splashscreen.xml`](#-configure-resdrawablesplashscreenxml)
-6. [Configure `res/values/styles.xml`](#-configure-resvaluesstylesxml)
-7. [Configure `AndroidManifest.xml`](#-configure-androidmanifestxml)
-8. [(<em>optional</em>) Enable dark mode](#-optional-enable-dark-mode-1)
-9. [(<em>optional</em>) Customize StatusBar](#-customize-statusbar-1)
-
-#### 🛠 `SplashScreen.show(Activity activity, SplashScreenImageResizeMode resizeMode, Class<out ViewGroup> rootViewClass, Boolean statusBarTranslucent)`
-
-This native method is used to hook `SplashScreen` into the native view hierarchy that is attached to the provided activity.
-
-You can use this method to customize how the splash screen view will be presented. Pass one of `SplashScreenImageResizeMode.{CONTAIN, COVER, NATIVE}` as second argument to do so.
-
-#### 🛠 Update `MainActivity.{java,kt}`
-
-Modify `MainActivity.{java,kt}` or any other activity that is marked in the application main `AndroidManifest.xml` as a main activity of your application (main activity is marked with the [`android.intent.action.MAIN`](https://developer.android.com/reference/android/content/Intent#ACTION_MAIN) intent filter. You can take a look at [this example from official Android docs](https://developer.android.com/guide/topics/manifest/manifest-intro#example)).
-
-Ensure `SplashScreen.show(...)` method is called after `super.onCreate(...)`
-
-```diff
-+ import expo.modules.splashscreen.singletons.SplashScreen;
-+ import expo.modules.splashscreen.SplashScreenImageResizeMode;
-
-public class MainActivity extends ReactActivity {
-
-  // other methods
-
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-+   // SplashScreen.show(...) has to be called after super.onCreate(...)
-+   SplashScreen.show(this, SplashScreenImageResizeMode.CONTAIN, ReactRootView.class, false);
-    ...
-  }
-
-  // other methods
-}
-```
-
-If the `onCreate` method is not yet overridden in your `MainActivity`, override it and include `SplashScreen.show(...)`
-
-```diff
-+ import android.os.Bundle;
-+ import expo.modules.splashscreen.singletons.SplashScreen;
-+ import expo.modules.splashscreen.SplashScreenImageResizeMode;
-
-public class MainActivity extends ReactActivity {
-
-+  @Override
-+  protected void onCreate(Bundle savedInstanceState) {
-+    super.onCreate(savedInstanceState);
-+   // SplashScreen.show(...) has to be called after super.onCreate(...)
-+   SplashScreen.show(this, SplashScreenImageResizeMode.CONTAIN, ReactRootView.class, false);
-    ...
-  }
-
-  // other methods
-}
-```
+1. [Configure `res/drawable/splashscreen_image.png`](#-configure-resdrawablesplashscreen_imagepng)
+2. [Configure `res/values/colors.xml`](#-configure-resvaluescolorsxml)
+3. [Configure `res/drawable/splashscreen.xml`](#-configure-resdrawablesplashscreenxml)
+4. [Configure `res/values/styles.xml`](#-configure-resvaluesstylesxml)
+5. [Configure `AndroidManifest.xml`](#-configure-androidmanifestxml)
+7. [(<em>optional</em>) Customize `resizeMode`](#todo)
+7. [(<em>optional</em>) Enable dark mode](#-optional-enable-dark-mode-1)
+8. [(<em>optional</em>) Customize StatusBar](#-customize-statusbar-1)
 
 #### 🛠 Configure `res/drawable/splashscreen_image.png`
 
@@ -540,7 +486,7 @@ This image will be loaded as soon as Android mounts your application's native vi
 
 ##### `NATIVE` mode adjustments
 
-If you've selected `SplashScreenImageResizeMode.NATIVE` mode in [`SplashScreen.show`](#splashscreenshowactivity-activity-splashscreenimageresizemode-mode-class-rootviewclass), you need to do a few additional steps.
+If you've overridden `resizeMode` as `NATIVE` in [`res/values/strings.xml`](#todo), you need to do a few additional steps.
 
 In your application's `res` directory you might want to have a number of `drawable-X` sub-directories (where `X` is the different DPI for different devices). They store different versions of images that are picked based on the device's DPI (for more information please see [this official Android docs](https://developer.android.com/training/multiscreen/screendensities#TaskProvideAltBmp)).
 
@@ -578,7 +524,7 @@ Create the file with the following content:
 
 #### `NATIVE` mode adjustments
 
-If you've selected `SplashScreenImageResizeMode.NATIVE` mode in [`SplashScreen.show`](#splashscreenshowactivity-activity-splashscreenimageresizemode-mode-class-rootviewclass), you should add:
+If you've overridden `resizeMode` as `NATIVE` in [`res/values/strings.xml`](#todo), you need to do a few additional steps.
 
 ```diff
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
@@ -624,6 +570,18 @@ Adjust your application's main `AndroidManifest.xml` to contain an `android:them
   </application>
 
 </manifest>
+```
+
+#### 🛠 (<em>optional</em>) Customize `resizeMode` in `res/values/strings.xml`
+
+By default on Android, the splash screen [`resizeMode`](#built-in-splash-screen-image-resize-modes) is `CONTAIN`. To change the mode, update `res/values/strings.xml` with the following entry:
+
+```diff
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<resources>
++ <string name="expo_splash_screen_resize_mode" translatable="false">contain|cover|native</string>
+</resources>
+
 ```
 
 #### 🛠 (<em>optional</em>) Enable dark mode
@@ -722,23 +680,13 @@ Read more about `android:statusBarColor` option in [official Android documentati
 
 When the StatusBar is translucent, the app will be able to draw under the StatusBar component area.
 
-To make the StatusBar translucent update your `MainActivity` file with the following content:
+To make the StatusBar translucent, update your `res/values/strings.xml` file with the following entry:
 
 ```diff
-public class MainActivity extends ReactActivity {
-
-   @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    // SplashScreen.show(...) has to be called after super.onCreate(...)
-    // Below line is handled by '@expo/configure-splash-screen' command and it's discouraged to modify it manually
--   SplashScreen.show(this, SplashScreenImageResizeMode.{CONTAIN, COVER, NATIVE}, ReactRootView.class, false);
-+   SplashScreen.show(this, SplashScreenImageResizeMode.{CONTAIN, COVER, NATIVE}, ReactRootView.class, true);
-
-  }
-
-  ...
-}
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<resources>
++ <string name="expo_splash_screen_status_bar_translucent" translatable="false">true</string>
+</resources>
 ```
 
 ## 👏 Contributing
