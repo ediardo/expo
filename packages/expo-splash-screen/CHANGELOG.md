@@ -7,6 +7,8 @@
 ### 🎉 New features
 
 - Add warning for splash screen if visible for too long ([#12882](https://github.com/expo/expo/pull/12882) by [@ajsmth](https://github.com/ajsmth))
+- Show splash screen without additional setup in MainActivity and could customize resizeMode/statusBarTranslucent in resource. ([#14061](https://github.com/expo/expo/pull/14061) by [@kudo](https://github.com/kudo))
+
 ### 🐛 Bug fixes
 
 - On iOS, search for a view controller with a RCTRootView rather than always using the keyWindow's rootViewController. ([#13429](https://github.com/expo/expo/pull/13429) by [@esamelson](https://github.com/esamelson))
