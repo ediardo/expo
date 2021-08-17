@@ -4,8 +4,10 @@ package host.exp.exponent.referrer
 import android.content.Context
 import android.content.Intent
 import com.google.android.gms.analytics.CampaignTrackingReceiver
+import expo.modules.updates.manifest.raw.RawManifest
 import host.exp.exponent.Constants
 import host.exp.exponent.ExpoApplication
+import host.exp.exponent.ExpoUpdatesAppLoader
 import host.exp.exponent.analytics.Analytics
 import host.exp.exponent.analytics.EXL
 import host.exp.exponent.di.NativeModuleDepsProvider
@@ -59,7 +61,22 @@ class InstallReferrerReceiver : CampaignTrackingReceiver() {
     if (Constants.INITIAL_URL == null) {
       return
     }
-    Exponent.instance.preloadManifestAndBundle(Constants.INITIAL_URL)
+
+    ExpoUpdatesAppLoader(Constants.INITIAL_URL, object : ExpoUpdatesAppLoader.AppLoaderCallback {
+      override fun onOptimisticManifest(optimisticManifest: RawManifest) {}
+      override fun onManifestCompleted(manifest: RawManifest) {}
+
+      override fun onBundleCompleted(localBundlePath: String?) {
+        EXL.d(TAG, "Successfully preloaded manifest and bundle for ${Constants.INITIAL_URL}")
+      }
+
+      override fun emitEvent(params: JSONObject) {}
+      override fun updateStatus(status: ExpoUpdatesAppLoader.AppLoaderStatus) {}
+
+      override fun onError(e: Exception) {
+        EXL.e(TAG, "Couldn't preload manifest or bundle for ${Constants.INITIAL_URL}: $e")
+      }
+    })
   }
 
   companion object {
